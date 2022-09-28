@@ -1,24 +1,33 @@
-import { FormEvent, useState } from 'react'
-import { supabase } from '../utils/supabaseClient'
+import { FormEvent, useState } from "react";
+import { supabase } from "../utils/supabaseClient";
+
+if (!process.env.NEXT_PUBLIC_BASE_URL) {
+  throw new Error("NEXT_PUBLIC_BASE_URL has to be set")
+}
 
 export default function Auth() {
-  const [loading, setLoading] = useState(false)
-  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
 
   const handleLogin = async (e: FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      setLoading(true)
-      const { error } = await supabase.auth.signInWithOtp({ email })
-      if (error) throw error
-      alert('Check your email for the login link!')
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_BASE_URL,
+        },
+      });
+      if (error) throw error;
+      alert("Check your email for the login link!");
     } catch (error: any) {
-      alert(error.error_description || error.message)
+      alert(error.error_description || error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="row flex-center flex">
@@ -28,7 +37,7 @@ export default function Auth() {
           Sign in via magic link with your email below
         </p>
         {loading ? (
-          'Sending magic link...'
+          "Sending magic link..."
         ) : (
           <form onSubmit={handleLogin}>
             <label htmlFor="email">Email</label>
@@ -47,5 +56,5 @@ export default function Auth() {
         )}
       </div>
     </div>
-  )
+  );
 }
